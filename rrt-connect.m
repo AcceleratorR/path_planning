@@ -5,13 +5,14 @@ global map map_row map_col STEP Start Goal rrtree1 rrtree2;
 
 %start and goal
 
-Start = [100 100];
+Start = [240 240];
 
-Goal = [50 50];
+Goal = [2 2];
 
-STEP = 15;
+STEP = 20;
 
-% % map( blank =1,block =0 )
+% % 1 map( blank =1,block =0 )
+
 % n = 100;
 % 
 % mapp = zeros(n);
@@ -28,14 +29,15 @@ STEP = 15;
 % 
 % clear block center mapp n;
 
-I = imread('blank.jpg');
+% second map (input)
+I = imread('xiaokou.jpg');
 map = imbinarize(I);
 map = map(:,:,1);
 
 [map_row,map_col] = size(map);
 clear I;
 
-% ³õÊ¼»¯
+% init
 
 if (iscollision(Start) == true)
     error("Start lies on an obstacle or outside map");
@@ -106,8 +108,9 @@ rrtree1(tree1_num+1:end,:)=[];
 rrtree2(tree2_num+1:end,:)=[];
 rrt1 = linkpath(rrtree1);
 rrt2 = linkpath(rrtree2);
-
-
+ 
+ rrt1 = flip(rrt1);
+finalpath = [rrt1;rrt2];
 %path length
 length_path = sum(sum(diff(finalpath).^2,2).^0.5);
 fprintf ('length path = %s \n',num2str(length_path));
@@ -119,9 +122,10 @@ plot(finalpath(:,2),finalpath(:,1),'r','LineWidth',2);
 %%
 % link  path 
 function finalpath = linkpath(rrtree)
- node_num = rrtree(end,3);
  finalpath = zeros(length(rrtree),2);
-   for i =1:length(rrtree)
+ finalpath(1,:) =  rrtree(end,1:2);
+ node_num = rrtree(end,3);
+   for i =2:length(rrtree)
        if (node_num > 0)
        finalpath(i,:) = rrtree(node_num,1:2);
        node_num = rrtree(node_num,3);
@@ -163,13 +167,14 @@ end
      %extend the second tree ,toward the newnode in the first tree
      [nearest_node2,nearest_row2] = find_nearest_node(newnode,rrtree2(1:tree2_num,1:2));
       
-     %stop condition
+     %stop condition 1.1
      if (cal_Hdist(nearest_node2,newnode) < STEP)
          pathfind = 1;
          newnode2 = nearest_node2;
          tree2_num = tree2_num+1;
          rrtree2(tree2_num,:) = [newnode2 nearest_row2];
-         line([nearest_node2(2),nearest_node(2)],[nearest_node2(1),nearest_node(1)],'Color','g','LineWidth',2);
+         line([nearest_node2(2),newnode(2)],[nearest_node2(1),newnode(1)],'Color','g','LineWidth',2);
+         fprintf ('stop condition 1.1');
          return;
      end
      
@@ -181,56 +186,88 @@ end
         line([newnode2(2),nearest_node2(2)],[newnode2(1),nearest_node2(1)],'LineWidth',2);
         hold on;
         drawnow;
+        else
+         newnode2 = nearest_node2;
+
      end
      
+     
+     [nearest_node,nearest_row] = find_nearest_node(newnode2,rrtree1(1:tree1_num,1:2));
+      
+     %stop condition  1.2
+     if (cal_Hdist(nearest_node,newnode2) < STEP)
+         pathfind = 1;
+         newnode = nearest_node;
+         tree1_num = tree1_num+1;
+         rrtree1(tree1_num,:) = [newnode nearest_row];
+         line([newnode2(2),nearest_node(2)],[newnode2(1),nearest_node(1)],'Color','g','LineWidth',2);
+         fprintf ('stop condition 1.2');
+         return;
+     end
 
      
      
-%  else
-%      
-%      
-%      
-%       %  tree1_num > tree2_num
-%      %extend the first tree ,toward the rand node 
-%      [nearest_node2,nearest_row2] = find_nearest_node(rand_node,rrtree2(1:tree2_num,1:2));
-%      
-%      newnode2 = extend_newpoint(rand_node,nearest_node2);
-%      
-%      %if get new node ,extend  first  tree
-%      if (~isempty(newnode2))   
-%         tree2_num = tree2_num+1;
-%         rrtree2(tree2_num,:) = [newnode2 nearest_row2];
-%         line([newnode2(2),nearest_node2(2)],[newnode2(1),nearest_node2(1)],'LineWidth',2);
-%         hold on;
-%         drawnow;
-%      else
-%          newnode2 = nearest_node2;
-% 
-%      end
-%      
-%      %extend the second tree ,toward the newnode in the first tree
-%      [nearest_node,nearest_row] = find_nearest_node(newnode2,rrtree1(1:tree1_num,1:2));
-%      
-%      %stop condition
-%      if (cal_Hdist(nearest_node,newnode2) < STEP)
-%          pathfind = 1;
-%          newnode = nearest_node;
-%          tree1_num = tree1_num+1;
-%          rrtree1(tree1_num,:) = [newnode nearest_row];
-%          line([nearest_node2(2),nearest_node(2)],[nearest_node2(1),nearest_node(1)],'Color','g','LineWidth',2);
-%          return;
-%      end
-%      
-%      newnode = extend_newpoint(nearest_node2,nearest_node);
-%      
-%      if (~isempty(newnode))   
-%         tree1_num = tree1_num+1;
-%         rrtree1(tree1_num,:) = [newnode nearest_row]; 
-%         line([newnode(2),nearest_node(2)],[newnode(1),nearest_node(1)],'Color','magenta','LineWidth',2);
-%         hold on;
-%         drawnow;
-%      end
+ else   %  following is the condition tree1_num > tree2_num,same as forward
      
+     
+     
+      %  tree1_num > tree2_num
+     %extend the first tree ,toward the rand node 
+     [nearest_node2,nearest_row2] = find_nearest_node(rand_node,rrtree2(1:tree2_num,1:2));
+     
+     newnode2 = extend_newpoint(rand_node,nearest_node2);
+     
+     %if get new node ,extend  first  tree
+     if (~isempty(newnode2))   
+        tree2_num = tree2_num+1;
+        rrtree2(tree2_num,:) = [newnode2 nearest_row2];
+        line([newnode2(2),nearest_node2(2)],[newnode2(1),nearest_node2(1)],'LineWidth',2);
+        hold on;
+        drawnow;
+     else
+         newnode2 = nearest_node2;
+
+     end
+     
+     %extend the second tree ,toward the newnode in the first tree
+     [nearest_node,nearest_row] = find_nearest_node(newnode2,rrtree1(1:tree1_num,1:2));
+     
+     %stop condition 2.1
+     if (cal_Hdist(nearest_node,newnode2) < STEP)
+         pathfind = 1;
+         newnode = nearest_node;
+         tree1_num = tree1_num+1;
+         rrtree1(tree1_num,:) = [newnode nearest_row];
+         line([nearest_node2(2),nearest_node(2)],[nearest_node2(1),nearest_node(1)],'Color','g','LineWidth',2);
+         fprintf ('stop condition 2.1');
+         return;
+     end
+     
+     newnode = extend_newpoint(nearest_node2,nearest_node);
+     
+     if (~isempty(newnode))   
+        tree1_num = tree1_num+1;
+        rrtree1(tree1_num,:) = [newnode nearest_row]; 
+        line([newnode(2),nearest_node(2)],[newnode(1),nearest_node(1)],'Color','magenta','LineWidth',2);
+        hold on;
+        drawnow;
+        else
+         newnode = nearest_node;
+     end
+     
+     
+     [nearest_node2,nearest_row2] = find_nearest_node(newnode,rrtree2(1:tree2_num,1:2));
+     
+     %stop condition 2.2
+     if (cal_Hdist(nearest_node2,newnode) < STEP)
+         pathfind = 1;
+         newnode2 = nearest_node2;
+         tree2_num = tree2_num+1;
+         rrtree2(tree2_num,:) = [newnode2 nearest_row2];
+         line([newnode(2),nearest_node2(2)],[newnode(1),nearest_node2(1)],'Color','g','LineWidth',2);
+         fprintf ('stop condition 2.2');
+         return;
+     end
      
  end
 
@@ -240,15 +277,17 @@ end
 function newnode = extend_newpoint(rand_node,nearest_node)
 global STEP;
     theta = atan2((rand_node(1)-nearest_node(1)),(rand_node(2)-nearest_node(2)));  % direction to extend sample to produce new node
+    
 %     sline = linspace(0,STEP,30)';      % generete 10 points in line
 %     detect_array = round(nearest_node + sline.* [sin(theta)  cos(theta)]);
-%     detect_array = unique(detect_array,'rows');    % generete points towards to rand_node
-%     newnode = [];
-%     for i = 1:length(detect_array)
+%     detect_array = unique(detect_array,'rows','stable');    % generete points towards to rand_node
+%     
+%      for i = 1:length(detect_array)
 %         if (iscollision(detect_array(i,:)) == true)
+%             newnode = [];
 %             return;
 %         end    
-%     end 
+%      end 
 %     newnode = detect_array(end,:);
     newnode = round(nearest_node + STEP.* [sin(theta)  cos(theta)]);%detect_array(i,:);
     if (iscollision(newnode) == true)
@@ -275,7 +314,7 @@ global map map_row map_col;
     incollision = true;
     if (p(1)<=map_row && p(1)>=1 && p(2)<=map_col && p(2)>=1 && map(p(1),p(2))== 1)
     incollision =false;
-end
+    end
 
 end
 
