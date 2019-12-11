@@ -20,7 +20,9 @@
      
       % tree2 stop condition 
     [~,~,pathfind] = tree2stop(newnode2);  
-     
+    if(pathfind>0)
+         return;
+     end
  else   
 
       %  extend tree2
@@ -37,7 +39,9 @@
      
     % tree stop condition
     [~,~,pathfind] = tree1stop(newnode);
-     
+    if(pathfind>0)
+         return;
+     end
  end
 
  end

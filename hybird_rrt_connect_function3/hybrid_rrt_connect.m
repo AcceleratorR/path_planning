@@ -1,13 +1,9 @@
-function finalpath =  rrt_connect(Start,Goal,Map)
-global map STEP rrtree1 rrtree2 Astar_Start Astar_Goal tree1_num tree2_num;
-if (nargin == 3)
-    map = Map;
-end
-
+function finalpath =  hybrid_rrt_connect(Start,Goal,Map,Map_Astar)
+global STEP rrtree1 rrtree2 Astar_Start Astar_Goal tree1_num tree2_num ;
 
 STEP = 20;
 
-[map_row,map_col] = size(map);
+[map_row,map_col] = size(Map);
 
 MAXTIMES = 100000;
 
@@ -58,12 +54,13 @@ if(pathfind == 3)
     Astar_path = [];
     
 elseif(pathfind == 1)  %find tree1 
+
     extend_rrtree2only(rrtree1(tree1_num,1:2)); 
-    Astar_path = Astar(Astar_Start,Astar_Goal);
+    Astar_path = Astar(Astar_Start,Astar_Goal,Map_Astar);
     
 elseif(pathfind == 2)  %find tree1 
     extend_rrtree1only(rrtree2(tree2_num,1:2)); 
-    Astar_path = Astar(Astar_Start,Astar_Goal);
+    Astar_path = Astar(Astar_Start,Astar_Goal,Map_Astar);
 end  
     rrtree1(tree1_num+1:end,:)=[];
     rrtree2(tree2_num+1:end,:)=[];

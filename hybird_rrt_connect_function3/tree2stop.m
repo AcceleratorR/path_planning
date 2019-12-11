@@ -17,7 +17,7 @@ pathfind = 0;
      %stop condition -- tree1 close to thicken line
      [nearest_node_t,nearest_row_t] = find_nearest_node(newnode2,thickenline);
      if(cal_H(nearest_node_t,newnode2) < STEP)
-        pathfind = 1;   
+        pathfind = 2;   
         Astar_Goal = thickenline(nearest_row_t,:);
         %pathfind = extend_rrtree2only(newnode);
         return;
