@@ -1,10 +1,6 @@
 
-function Astar_path = Astar(Start,Goal,Map)
-global map Gridsize thickenline;
-
-if (nargin == 3)
-    map = Map;
-end
+function Astar_path = Astar(Start,Goal)
+global Gridsize thickenline;
 
 %gridsize 
 Gridsize = 3;
@@ -83,7 +79,7 @@ while(findpath == 0)
        if(ismem ==1 )% p already in openlist
 
            %cal new G
-           currentG = closelist(count_closelist-1,4) + cal_G(p,currentpoint);
+           currentG = closelist(count_closelist-1,4) + cal_dist(p,currentpoint);
 
            % from current point to this point v.s origin path by G 
            if(currentG < openlist(mem_row,4)) 
@@ -107,8 +103,8 @@ while(findpath == 0)
             openlist(count_openlist,3) = count_closelist-1;  
 
             % cal G H F
-            %openlist(currentpoint_row,4) + cal_G(p,currentpoint);
-            openlist(count_openlist,4) =closelist(openlist(count_openlist,3),4)+cal_G(p,currentpoint);
+            %openlist(currentpoint_row,4) + cal_dist(p,currentpoint);
+            openlist(count_openlist,4) =closelist(openlist(count_openlist,3),4)+cal_dist(p,currentpoint);
 
             H = around_point(i,3);%cal_H(p,Goal);
 

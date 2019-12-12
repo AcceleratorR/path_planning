@@ -14,9 +14,5 @@ global STEP;
         end    
      end 
     newnode = detect_array(end,:);
-%     newnode = round(nearest_node + STEP.* [sin(theta)  cos(theta)]);%detect_array(i,:);
-%     if (iscollision(newnode) == true)
-%         newnode = [];
-%         return;
-%     end
+
 end

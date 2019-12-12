@@ -1,9 +1,9 @@
 function Neighboors =create_around(Gridsize)
 
 Around_Point=ones(2*Gridsize+1);
-% Dummy=2*Gridsize+2;
+%  Dummy=2*Gridsize+2;
  Mid=Gridsize+1;
-%for i=1:Gridsize-1
+% for i=1:Gridsize-1
 %     Around_Point(i,i)=0;
 %     Around_Point(Dummy-i,i)=0;
 %     Around_Point(i,Dummy-i)=0;

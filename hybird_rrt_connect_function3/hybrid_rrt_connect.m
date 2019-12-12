@@ -1,9 +1,7 @@
-function finalpath =  hybrid_rrt_connect(Start,Goal,Map,Map_Astar)
+function finalpath =  hybrid_rrt_connect(Start,Goal,map_row,map_col)
 global STEP rrtree1 rrtree2 Astar_Start Astar_Goal tree1_num tree2_num ;
 
 STEP = 20;
-
-[map_row,map_col] = size(Map);
 
 MAXTIMES = 100000;
 
@@ -49,23 +47,33 @@ end
 
 %%
    % if find path ==3
-    %clear remain space
+    
 if(pathfind == 3)  
-    Astar_path = [];
-    
+    Astar_path = []; 
 elseif(pathfind == 1)  %find tree1 
-
+    %extend tree2
     extend_rrtree2only(rrtree1(tree1_num,1:2)); 
-    Astar_path = Astar(Astar_Start,Astar_Goal,Map_Astar);
-    
+    Astar_path = Astar(Astar_Start,Astar_Goal);  
 elseif(pathfind == 2)  %find tree1 
+    %extend tree1
     extend_rrtree1only(rrtree2(tree2_num,1:2)); 
-    Astar_path = Astar(Astar_Start,Astar_Goal,Map_Astar);
+    Astar_path = Astar(Astar_Start,Astar_Goal);
 end  
+
+    %clear remain space
     rrtree1(tree1_num+1:end,:)=[];
     rrtree2(tree2_num+1:end,:)=[];
+    
+    % link path
     rrtree1 = linkpath(rrtree1);
     rrtree2 = linkpath(rrtree2);
     rrtree1 = flip(rrtree1);
-    finalpath = [rrtree1;Astar_path;rrtree2];
+    
+    %interpolation
+    interpo_num = 5;
+    newPath1 = interpo(rrtree1,interpo_num);
+    newPath2 = interpo(rrtree2,interpo_num);
+    newPath1 = clip(newPath1);
+    newPath2 = clip(newPath2);
+    finalpath = [newPath1;Astar_path;newPath2];
 end

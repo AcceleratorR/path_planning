@@ -1,7 +1,7 @@
-clear;clc;
+clear;clc;clear global;
 
 %load map
-I = imread('lianjie.jpg');
+I = imread('xiaokou.jpg');
 A1 = imbinarize(I);
 global map thickenline ;
 map = A1(:,:,1);
@@ -10,13 +10,13 @@ map = A1(:,:,1);
 Map_Astar =bwmorph(~map,'thicken',inf);
 [a,b] = find(Map_Astar ==0);
 thickenline = [a,b];
-Map_Astar = ~Map_Astar;
+%Map_Astar = ~Map_Astar;
 %clear 
 clear I A1 a b ;
 
 % init
-Start = [50 600];
-Goal = [450 50];
+Start = [50 50];
+Goal = [240 230];
 
 if (iscollision(Start) == true)
     error("Start lies on an obstacle or outside map");
@@ -37,7 +37,8 @@ plot(thickenline(:,2),thickenline(:,1),'.c')
 hold on;
 
 % use hybrid rrt-connect to find path
-hybrid_path = hybrid_rrt_connect(Start,Goal,map,Map_Astar); 
+[map_row,map_col] = size(map);
+hybrid_path = hybrid_rrt_connect(Start,Goal,map_row,map_col); 
 
 %plot path
 figure(1)
